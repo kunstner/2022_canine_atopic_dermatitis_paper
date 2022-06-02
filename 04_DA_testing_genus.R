@@ -1,7 +1,7 @@
 
 # General Information -----------------------------------------------------
 
-# Authors: Mirja Thomson & Axel Künstner
+# Authors: Mirja Thomsen & Axel Künstner
 # Date:    2022-05-31
 
 # Libraries ---------------------------------------------------------------
