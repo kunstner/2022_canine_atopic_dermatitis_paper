@@ -32,8 +32,12 @@ AABB
 DDCC
 "
 
-layout2 <- "
+layout3 <- "
 ABC
+"
+
+layout2 <- "
+AB
 "
 
 # Staphylococcus ----------------------------------------------------------
@@ -65,6 +69,7 @@ cova$Staphylococcus <- genus_table[, 'Staphylococcus']
 cova$Fusobacterium <- genus_table[, 'Fusobacterium']
 
 cova$Test <- genus_table[, 'Megamonas']
+
 
 cova$group <- factor(cova$group, levels = c("ADpre", "ADtreatment", "Healthy" ))
 
@@ -101,7 +106,6 @@ summary(m11)
 summary(m12)
 summary(m13)
 
-# double check sign. results
 summary(m1)
 summary(m2)
 summary(m4)
@@ -111,15 +115,18 @@ summary(m8)
 summary(m9)
 summary(m10)
 
+
+
 sjPlot::plot_model(m10, type = "pred", terms = "CADESI") + theme_user + ggtitle('') +  ylab('Staphylococcus') 
 
 # abdomen
 m1.group <- update(m1, Staphylococcus ~ group)
-p1 <- sjPlot::plot_model(m1, show.values = T, sort.est = FALSE, vline.color = "grey45") + theme_user + ggtitle('')
+p1 <- sjPlot::plot_model(m1, show.values = T, show.p = T, sort.est = FALSE, vline.color = "grey45", colors = "grey25") + theme_user + ggtitle('')
 p2 <- ggplot(cova %>% dplyr::filter(location == "abdomen"), aes(CADESI, Staphylococcus)) +
     geom_point() + geom_smooth(method='lm') + theme_user + ggtitle('') +  ylab('Staphylococcus') + ylim(-0.1,1.4)
 p3 <- sjPlot::plot_model(m1.group, type = "pred", terms = "group", show.values = T, ) + theme_user + xlab('') + ylab('Staphylococcus') + ggtitle('')
-emmeans::emmeans(m1.group, pairwise ~ group)$contrasts
+emmeans::emmeans(m1.group, pairwise ~ group)$contrasts 
+em_df <- emmeans::emmeans(m1.group, pairwise ~ group)$contrasts %>% data.frame()
 p4 <- flextable::flextable( emmeans::emmeans(m1.group, pairwise ~ group)$contrasts %>% as.data.frame() )
 
 p1 + p2 + p3 + 
@@ -129,18 +136,21 @@ p1 + p2 + p3 +
 ggsave(filename = "plots/model_Staph_abdomen.pdf", height = 9, width = 9)
 effectsize::eta_squared(car::Anova(m1, type = 2), partial = FALSE, ci = 0.95)
 
-plot_abdomen <- p1 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16)) +
-    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+plot_abdomen <- 
     p3 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+    annotate("text", x = 2.5, y = 0.6, label = paste0("p = ", round(em_df$p.value[2],4)), size = 8) + ylim(-0.1,0.8) +
+    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
     plot_layout(design = layout2) 
+plot_abdomen
 
 # Axilla
 m2.group <- update(m2, Staphylococcus ~ group)
-p1 <- sjPlot::plot_model(m2, show.values = T, show.p = T, sort.est = FALSE, vline.color = "grey45") + theme_user + ggtitle('')
+p1 <- sjPlot::plot_model(m2, show.values = T, show.p = T, sort.est = FALSE, vline.color = "grey45", colors = "grey25") + theme_user + ggtitle('')
 p2 <- ggplot(cova %>% dplyr::filter(location == "axilla"), aes(CADESI, Staphylococcus)) +
     geom_point() + geom_smooth(method='lm') + theme_user + ggtitle('') +  ylab('Staphylococcus') + ylim(-0.1,1.4)
 p3 <- sjPlot::plot_model(m2.group, type = "pred", terms = "group", show.values = T, ) + theme_user + xlab('') + ylab('Staphylococcus') + ggtitle('')
 emmeans::emmeans(m2.group, pairwise ~ group)$contrasts
+em_df <- emmeans::emmeans(m2.group, pairwise ~ group)$contrasts %>% data.frame()
 p4 <- flextable::flextable( emmeans::emmeans(m2.group, pairwise ~ group)$contrasts %>% as.data.frame() )
 
 p1 + p2 + p3 + 
@@ -150,18 +160,20 @@ p1 + p2 + p3 +
 ggsave(filename = "plots/model_Staph_axilla.pdf", height = 9, width = 9)
 effectsize::eta_squared(car::Anova(m2, type = 2), partial = FALSE, ci = 0.95)
 
-plot_axilla <- p1 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16)) +
-    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+plot_axilla <- 
     p3 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+    annotate("text", x = 2.5, y = 0.6, label = paste0("p = ", round(em_df$p.value[2],4)), size = 8) + ylim(-0.1,0.8) +
+    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
     plot_layout(design = layout2) 
 
 # Elbow
 m4.group <- update(m4, Staphylococcus ~ group)
-p1 <- sjPlot::plot_model(m4, show.values = T, sort.est = FALSE, transform = NULL, vline.color = "grey45") + theme_user + ggtitle('')
+p1 <- sjPlot::plot_model(m4, show.values = T, sort.est = FALSE, transform = NULL, vline.color = "grey45", colors = "grey25") + theme_user + ggtitle('')
 p2 <- ggplot(cova %>% dplyr::filter(location == "elbow"), aes(CADESI, Staphylococcus)) +
     geom_point() + geom_smooth(method='lm') + theme_user + ggtitle('') +  ylab('Staphylococcus') + ylim(-0.1,1.4)
 p3 <- sjPlot::plot_model(m4.group, type = "pred", terms = "group", show.values = T, ) + theme_user + xlab('') + ylab('Staphylococcus') + ggtitle('')
 emmeans::emmeans(m4.group, pairwise ~ group)$contrasts
+em_df <- emmeans::emmeans(m4.group, pairwise ~ group)$contrasts %>% data.frame()
 p4 <- flextable::flextable( emmeans::emmeans(m4.group, pairwise ~ group)$contrasts %>% as.data.frame() )
 
 p1 + p2 + p3 + 
@@ -171,18 +183,20 @@ p1 + p2 + p3 +
 ggsave(filename = "plots/model_Staph_elbow.pdf", height = 9, width = 9)
 effectsize::eta_squared(car::Anova(m4, type = 2), partial = FALSE, ci = 0.95)
 
-plot_elbow <- p1 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16)) +
-    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+plot_elbow <- 
     p3 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+    annotate("text", x = 2.5, y = 0.6, label = paste0("p = ", round(em_df$p.value[2],4)), size = 8) + ylim(-0.1,0.8) +
+    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
     plot_layout(design = layout2) 
 
 # Flank
 m5.group <- update(m5, Staphylococcus ~ group)
-p1 <- sjPlot::plot_model(m5, show.values = T, show.p = T, sort.est = FALSE, transform = NULL, vline.color = "grey45") + theme_user + ggtitle('')
+p1 <- sjPlot::plot_model(m5, show.values = T, show.p = T, sort.est = FALSE, transform = NULL, vline.color = "grey45", colors = "grey25") + theme_user + ggtitle('')
 p2 <- ggplot(cova %>% dplyr::filter(location == "flank"), aes(CADESI, Staphylococcus)) +
     geom_point() + geom_smooth(method='lm') + theme_user + ggtitle('') +  ylab('Staphylococcus') + ylim(-0.1,1.4) 
 p3 <- sjPlot::plot_model(m5.group, type = "pred", terms = "group", show.values = T, ) + theme_user + xlab('') + ylab('Staphylococcus') + ggtitle('')
 emmeans::emmeans(m5.group, pairwise ~ group)$contrasts
+em_df <- emmeans::emmeans(m5.group, pairwise ~ group)$contrasts %>% data.frame()
 p4 <- flextable::flextable( emmeans::emmeans(m5.group, pairwise ~ group)$contrasts %>% as.data.frame() )
 
 p1 + p2 + p3 + 
@@ -192,18 +206,21 @@ p1 + p2 + p3 +
 ggsave(filename = "plots/model_Staph_flank.pdf", height = 9, width = 9)
 effectsize::eta_squared(car::Anova(m5, type = 2), partial = FALSE, ci = 0.95)
 
-plot_flank <- p1 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16)) +
-    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+plot_flank <- 
     p3 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+    annotate("text", x = 2.5, y = 0.6, label = paste0("p = ", round(em_df$p.value[2],4)), size = 8) + ylim(-0.1,0.8) +
+    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
     plot_layout(design = layout2) 
 
 # Front Paw
 m6.group <- update(m6, Staphylococcus ~ group)
-p1 <- sjPlot::plot_model(m6, show.values = T, show.p = T, sort.est = FALSE, transform = NULL, vline.color = "grey45") + theme_user + ggtitle('')
+p1 <- sjPlot::plot_model(m6, show.values = T, show.p = T, sort.est = FALSE, transform = NULL, vline.color = "grey45", colors = "grey25") + theme_user + ggtitle('')
 p2 <- ggplot(cova %>% dplyr::filter(location == "frontPaw"), aes(CADESI, Staphylococcus)) +
     geom_point() + geom_smooth(method='lm') + theme_user + ggtitle('') +  ylab('Staphylococcus') + ylim(-0.1,1.4)
 p3 <- sjPlot::plot_model(m6.group, type = "pred", terms = "group", show.values = T, ) + theme_user + xlab('') + ylab('Staphylococcus') + ggtitle('')
 emmeans::emmeans(m6.group, pairwise ~ group)$contrasts
+em_df <- emmeans::emmeans(m6.group, pairwise ~ group)$contrasts %>% data.frame()
+
 p4 <- flextable::flextable( emmeans::emmeans(m6.group, pairwise ~ group)$contrasts %>% as.data.frame() )
 
 p1 + p2 + p3 + 
@@ -213,18 +230,20 @@ p1 + p2 + p3 +
 ggsave(filename = "plots/model_Staph_frontPaw.pdf", height = 9, width = 9)
 effectsize::eta_squared(car::Anova(m6, type = 2), partial = FALSE, ci = 0.95)
 
-plot_frontpaw <- p1 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16)) +
-    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+plot_frontpaw <- 
     p3 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+    annotate("text", x = 2.5, y = 0.6, label = paste0("p = ", round(em_df$p.value[2],4)), size = 8) + ylim(-0.1,0.8) +
+    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
     plot_layout(design = layout2) 
 
 # hindPaw
 m8.group <- update(m8, Staphylococcus ~ group)
-p1 <- sjPlot::plot_model(m8, show.values = T, sort.est = FALSE, transform = NULL, vline.color = "grey45") + theme_user + ggtitle('')
+p1 <- sjPlot::plot_model(m8, show.values = T, sort.est = FALSE, transform = NULL, vline.color = "grey45", colors = "grey25") + theme_user + ggtitle('')
 p2 <- ggplot(cova %>% dplyr::filter(location == "hindPaw"), aes(CADESI, Staphylococcus)) +
     geom_point() + geom_smooth(method='lm') + theme_user + ggtitle('') +  ylab('Staphylococcus') + ylim(-0.1,1.4) 
 p3 <- sjPlot::plot_model(m8.group, type = "pred", terms = "group", show.values = T, ) + theme_user + xlab('') + ylab('Staphylococcus') + ggtitle('')
 emmeans::emmeans(m8.group, pairwise ~ group)$contrasts
+em_df <- emmeans::emmeans(m8.group, pairwise ~ group)$contrasts %>% data.frame()
 p4 <- flextable::flextable( emmeans::emmeans(m8.group, pairwise ~ group)$contrasts %>% as.data.frame() )
 
 p1 + p2 + p3 + 
@@ -234,19 +253,22 @@ p1 + p2 + p3 +
 ggsave(filename = "plots/model_Staph_hindPaw.pdf", height = 9, width = 9)
 effectsize::eta_squared(car::Anova(m8, type = 2), partial = FALSE, ci = 0.95)
 
-plot_hindpaw <- p1 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16)) +
-    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+plot_hindpaw <- 
     p3 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+    annotate("text", x = 2.5, y = 0.6, label = paste0("p = ", round(em_df$p.value[2],4)), size = 8) + ylim(-0.1,0.8) +
+    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
     plot_layout(design = layout2) 
 
 
 # Lips
 m9.group <- update(m9, Staphylococcus ~ group)
-p1 <- sjPlot::plot_model(m9, show.values = T, sort.est = FALSE, transform = NULL, vline.color = "grey45") + theme_user + ggtitle('')
+p1 <- sjPlot::plot_model(m9, show.values = T, sort.est = FALSE, transform = NULL, vline.color = "grey45", colors = "grey25") + theme_user + ggtitle('')
 p2 <- ggplot(cova %>% dplyr::filter(location == "lips"), aes(CADESI, Staphylococcus)) +
     geom_point() + geom_smooth(method='lm') + theme_user + ggtitle('') +  ylab('Staphylococcus') + ylim(-0.1,1.4)
 p3 <- sjPlot::plot_model(m9.group, type = "pred", terms = "group", show.values = T, ) + theme_user + xlab('') + ylab('Staphylococcus') + ggtitle('')
 emmeans::emmeans(m9.group, pairwise ~ group)$contrasts
+em_df <- emmeans::emmeans(m9.group, pairwise ~ group)$contrasts %>% data.frame()
+
 p4 <- flextable::flextable( emmeans::emmeans(m9.group, pairwise ~ group)$contrasts %>% as.data.frame() )
 
 p1 + p2 + p3 + 
@@ -256,19 +278,22 @@ p1 + p2 + p3 +
 ggsave(filename = "plots/model_Staph_lips.pdf", height = 9, width = 9)
 effectsize::eta_squared(car::Anova(m9, type = 2), partial = FALSE, ci = 0.95)
 
-plot_lips <- p1 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16)) +
-    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+plot_lips <- 
     p3 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+    annotate("text", x = 2.5, y = 0.6, label = paste0("p = ", round(em_df$p.value[2],4)), size = 8) + ylim(-0.1,0.8) +
+    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
     plot_layout(design = layout2) 
 
 
 # palm
 m10.group <- update(m10, Staphylococcus ~ group)
-p1 <- sjPlot::plot_model(m10, show.values = T, show.p = T, sort.est = FALSE, transform = NULL, vline.color = "grey45") + theme_user + ggtitle('')
+p1 <- sjPlot::plot_model(m10, show.values = T, show.p = T, sort.est = FALSE, transform = NULL, vline.color = "grey45", colors = "grey25") + theme_user + ggtitle('')
 p2 <- ggplot(cova %>% dplyr::filter(location == "palm"), aes(CADESI, Staphylococcus)) +
     geom_point() + geom_smooth(method='lm') + theme_user + ggtitle('') +  ylab('Staphylococcus') + ylim(-0.1,1.4)
 p3 <- sjPlot::plot_model(m10.group, type = "pred", terms = "group", show.values = T, ) + theme_user + xlab('') + ylab('Staphylococcus') + ggtitle('')
 emmeans::emmeans(m10.group, pairwise ~ group)$contrasts
+em_df <- emmeans::emmeans(m10.group, pairwise ~ group)$contrasts %>% data.frame()
+
 p4 <- flextable::flextable( emmeans::emmeans(m10.group, pairwise ~ group)$contrasts %>% as.data.frame() )
 
 p1 + p2 + p3 + 
@@ -278,9 +303,10 @@ p1 + p2 + p3 +
 ggsave(filename = "plots/model_Staph_palm.pdf", height = 9, width = 9)
 effectsize::eta_squared(car::Anova(m10, type = 2), partial = FALSE, ci = 0.95)
 
-plot_palm <- p1 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16)) +
-    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+plot_palm <- 
     p3 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
+    annotate("text", x = 2.5, y = 0.6, label = paste0("p = ", round(em_df$p.value[2],4)), size = 8) + ylim(-0.1,0.8) +
+    p2 + geom_point(size = 4) + theme(axis.text.y = element_text(size = 16), axis.title.y = element_text(face = "italic", size = 16)) +
     plot_layout(design = layout2) 
 
 
@@ -297,31 +323,31 @@ emmeans::emmeans(m14.group, pairwise ~ group)$contrasts
 # Pretty plotting ---------------------------------------------------------
 
 layout3 <- "
-AAA
-BBB
-CCC
-DDD
-EEE
-FFF
-GGG
-HHH
+AA
+BB
+CC
+DD
+EE
+FF
+GG
+HH
 "
 
-p_model <- plot_abdomen /
-    plot_axilla /
-    plot_elbow /
-    plot_flank /
-    plot_frontpaw /
-    plot_hindpaw /
-    plot_lips /
-    plot_palm +
+p_model <- plot_abdomen / # sig.
+    plot_axilla / # sig.
+    plot_elbow / # sig.
+    plot_palm / # sig.
+    plot_lips / # sig.
+    plot_hindpaw / # not sig.
+    plot_flank / # not sig.
+    plot_frontpaw + # not sig.
     plot_layout(design = layout3) +
     plot_annotation(tag_levels = 'a')
-ggsave(filename = "plots/FigS6.pdf", height = 27, width = 18, plot = p_model)
+ggsave(filename = "plots/FigS6.pdf", height = 27, width = 12, plot = p_model)
 
 # Staphylococcus vs Neisseria ---------------------------------------------
 
-ps <- readRDS(file = "data/phyloseq.OTU.RDS")
+ps <- readRDS(file = "phyloseq.OTU.RDS")
 ps_clr <- microbiome::transform(ps, "clr")
 ps_ra  <- transform_sample_counts(ps, function(x){x / sum(x)})
 
